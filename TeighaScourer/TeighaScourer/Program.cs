@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace TeighaScourer
@@ -7,20 +8,14 @@ namespace TeighaScourer
     {
         static void Main(string[] args)
         {
-            string dir;
-            if (args.Length > 0)
-            {
-                dir = args[0];
-            }
-            else
-            {
-                dir = Directory.GetCurrentDirectory();
-            }
-            Scour(dir);
+            var dir = args.Length > 0 ? args[0] : Directory.GetCurrentDirectory();
+            var delCount = Scour(dir);
+            Console.WriteLine("{0} file(s) deleted", delCount);
         }
 
-        private static void Scour(string dir)
+        private static int Scour(string dir)
         {
+            var delCount = 0;
             var dirInfo = new DirectoryInfo(dir);
             var fns = new HashSet<string>();
             foreach (var f in dirInfo.GetFiles())
@@ -47,8 +42,16 @@ namespace TeighaScourer
                         continue;
                     }
                 }
+                var fname = f.Name.ToLower();
+                var processName = AppDomain.CurrentDomain.FriendlyName.ToLower();
+                if (fname == processName)
+                {
+                    continue;
+                }
                 f.Delete();
+                delCount++;
             }
+            return delCount;
         }
     }
 }
